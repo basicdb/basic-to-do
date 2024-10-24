@@ -71,21 +71,23 @@ export function AppSidebar() {
                                 side="top"
                                 className="w-[--radix-popper-anchor-width]"
                             >
-                                <DropdownMenuItem>
-                                    <a href="https://basic.tech" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                                <a href="https://basic.tech" target="_blank" rel="noopener noreferrer" className="flex items-center hover:bg-gray-100 rounded">
+                                    <DropdownMenuItem className="w-full cursor-pointer">
                                         <ExternalLink className="mr-2 h-4 w-4" />
                                         <span>Learn about Basic</span>
-                                    </a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <a href="https://docs.basic.tech" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                                    </DropdownMenuItem>
+                                </a>
+                                <a href="https://docs.basic.tech" target="_blank" rel="noopener noreferrer" className="flex items-center hover:bg-gray-100 rounded">
+                                    <DropdownMenuItem className="w-full cursor-pointer">
                                         <BookOpenText className="mr-2 h-4 w-4" />
                                         <span>Documentation</span>
-                                    </a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <span>Login</span>
-                                </DropdownMenuItem>
+                                    </DropdownMenuItem>
+                                </a>
+                                <a href="" target="_blank" rel="noopener noreferrer" className="flex items-center hover:bg-gray-100 rounded">
+                                    <DropdownMenuItem className="w-full cursor-pointer">
+                                        Login
+                                    </DropdownMenuItem>
+                                </a>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </SidebarMenuItem>
