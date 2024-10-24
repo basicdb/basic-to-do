@@ -52,17 +52,19 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center mt-20 w-full">
-      <div className="w-[300px] pt-8">
-        <Input
-          onMouseEnter={() => setIsInputHovered(true)}
-          onMouseLeave={() => setIsInputHovered(false)}
-          title={title}
-          setTitle={setTitle}
-          date={date}
-          setDate={setDate}
-          onAddTask={handleAddTask}
-        />
+    <div className="flex flex-col items-center w-full">
+      <div className="w-[300px]">
+        <div className="pt-28 bg-[#242424]/95 sticky top-0 z-50 rounded-b-md">
+          <Input
+            onMouseEnter={() => setIsInputHovered(true)}
+            onMouseLeave={() => setIsInputHovered(false)}
+            title={title}
+            setTitle={setTitle}
+            date={date}
+            setDate={setDate}
+            onAddTask={handleAddTask}
+          />
+        </div>
         {tasks.length > 0 ? (
           tasks.map((task) => (
             <Task
@@ -78,7 +80,7 @@ export default function Home() {
             />
           ))
         ) : (
-          <div className="text-center mt-8">
+          <div className="text-center mt-8 text-white">
             <h3 className="text-lg font-semibold">No tasks yet.</h3>
             <p className="text-sm italic">Which is totally fine.
               It's okay to do nothing.

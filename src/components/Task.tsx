@@ -65,14 +65,17 @@ const Task: React.FC<TaskProps> = ({ id, title, date, completed, handleDelete, h
                 ) : (
                     <p
                         onClick={() => setEditingTitle(true)}
-                        className="font-semibold mb-2 truncate hover:underline cursor-text text-gray-200"
+                        className={`font-semibold mb-2 truncate hover:underline cursor-text ${completed
+                            ? 'line-through italic text-[#9ba3af]'
+                            : 'text-gray-200'
+                            }`}
                     >
                         {title}
                     </p>
                 )}
                 <DatePickerDemo
                     width="max-w-[250px] text-xs p-2"
-                    border={`border-[#1d1d1d] ${isDateTodayOrEarlier ? 'text-red-300' : ''}`}
+                    border={`border-[#1d1d1d] ${isDateTodayOrEarlier && !completed ? 'text-red-300' : ''}`}
                     date={date}
                     setDate={(newDate) => handleUpdate(id, 'date', newDate)}
                     isPopoverOpen={isPopoverOpen}
