@@ -1,4 +1,20 @@
-import { Calendar, Home, Inbox, Search, Settings, User2, ChevronUp, ExternalLink, BookOpenText } from "lucide-react"
+"use client"
+
+import {
+    Plus,
+    Pencil,
+    Inbox,
+    CalendarClock,
+    Calendar,
+    FolderCheck,
+    User2,
+    ChevronUp,
+    ExternalLink,
+    BookOpenText
+} from "lucide-react"
+import { useState, useRef, useEffect, useCallback } from "react"
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useTaskContext } from "@/contexts/TaskContext";
 
 import {
     Sidebar,
@@ -11,7 +27,8 @@ import {
     SidebarMenuItem,
     SidebarHeader,
     SidebarFooter,
-    SidebarRail,
+    SidebarGroupAction,
+    SidebarMenuAction,
 } from "@/components/ui/sidebar"
 
 import {
@@ -21,15 +38,64 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const items = [
-    {
-        title: "I don't work",
-        url: "#",
-        icon: Home,
-    },
-]
-
 export function AppSidebar() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const currentView = searchParams.get('view') || 'all-tasks';
+    const { updateTaskTags } = useTaskContext();
+
+    const [editingItem, setEditingItem] = useState<string | null>(null)
+    const [editedTitle, setEditedTitle] = useState("")
+    const [items, setItems] = useState([{ title: "New list", url: "#" }])
+    const inputRef = useRef<HTMLInputElement | null>(null)
+
+    const handleEditClick = (title: string) => {
+        setEditingItem(title)
+        setEditedTitle(title)
+        handleViewChange(title)
+        setTimeout(() => inputRef.current?.focus(), 0)
+    }
+
+    const handleSaveTitle = () => {
+        if (editingItem) {
+            setItems(items.map(item =>
+                item.title === editingItem ? { ...item, title: editedTitle } : item
+            ));
+            updateTaskTags(editingItem, editedTitle);
+            setEditingItem(null);
+            handleViewChange(editedTitle);
+        }
+    };
+
+    const handleClickOutside = useCallback((event: MouseEvent) => {
+        if (inputRef.current && !inputRef.current.contains(event.target as Node) &&
+            !(event.target instanceof Element && event.target.closest('[role="menuitem"]'))) {
+            handleSaveTitle()
+        }
+    }, [handleSaveTitle])
+
+    useEffect(() => {
+        if (editingItem) {
+            document.addEventListener("mousedown", handleClickOutside)
+            return () => document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [editingItem, handleClickOutside])
+
+    const handleAddProject = () => {
+        const newTitle = `New list ${items.length + 1}`
+        setItems([...items, { title: newTitle, url: "#" }])
+        setEditingItem(newTitle)
+        setEditedTitle(newTitle)
+        handleViewChange(newTitle)
+        setTimeout(() => inputRef.current?.focus(), 0)
+    }
+
+    const handleViewChange = (view: string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('view', view);
+        router.push(`/?${params.toString()}`);
+    };
+
     return (
         <Sidebar>
             <SidebarHeader>
@@ -40,17 +106,82 @@ export function AppSidebar() {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Application</SidebarGroupLabel>
+                    <SidebarGroupLabel>Main</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={currentView === "all-tasks"}
+                                    onClick={() => handleViewChange("all-tasks")}
+                                >
+                                    <Inbox />
+                                    <span>All Tasks</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={currentView === "delayed"}
+                                    onClick={() => handleViewChange("delayed")}
+                                    className="text-red-400"
+                                >
+                                    <CalendarClock />
+                                    <span>Delayed</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={currentView === "scheduled"}
+                                    onClick={() => handleViewChange("scheduled")}
+                                >
+                                    <Calendar />
+                                    <span>Scheduled</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={currentView === "completed"}
+                                    onClick={() => handleViewChange("completed")}
+                                >
+                                    <FolderCheck />
+                                    <span>Completed</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                <SidebarGroup>
+                    <SidebarGroupLabel>My lists</SidebarGroupLabel>
+                    <SidebarGroupAction title="Add Project" onClick={handleAddProject}>
+                        <Plus /> <span className="sr-only">Add Project</span>
+                    </SidebarGroupAction>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
+                                    <SidebarMenuButton asChild
+                                        isActive={currentView === item.title}
+                                        onClick={() => handleViewChange(item.title)}>
                                         <a href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
+                                            {editingItem === item.title ? (
+                                                <input
+                                                    ref={inputRef}
+                                                    value={editedTitle}
+                                                    onChange={(e) => setEditedTitle(e.target.value)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle()}
+                                                    className="border-b border-gray-300 focus:outline-none bg-transparent"
+                                                />
+                                            ) : (
+                                                <span>{item.title}</span>
+                                            )}
                                         </a>
                                     </SidebarMenuButton>
+                                    <SidebarMenuAction
+                                        onClick={() => handleEditClick(item.title)}
+                                        className="hover:bg-[#36373a] hover:text-gray-400 text-gray-700 transition-all duration-100"
+                                    >
+                                        <Pencil />
+                                    </SidebarMenuAction>
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>
@@ -83,7 +214,7 @@ export function AppSidebar() {
                                         <span>Documentation</span>
                                     </DropdownMenuItem>
                                 </a>
-                                <a href="" target="_blank" rel="noopener noreferrer" className="flex items-center hover:bg-gray-100 rounded">
+                                <a href="/login" className="flex items-center hover:bg-gray-100 rounded">
                                     <DropdownMenuItem className="w-full cursor-pointer">
                                         Login
                                     </DropdownMenuItem>

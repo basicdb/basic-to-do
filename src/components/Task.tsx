@@ -7,11 +7,12 @@ export interface TaskProps {
     title: string;
     date: Date | null;
     completed: boolean;
+    tags: string[];  // Add this line
     handleDelete: () => void;
     handleUpdate: (id: string, field: 'title' | 'date', value: string | Date | null) => void;
     handleToggleCompleted: () => void;
     style?: React.CSSProperties;
-    isInputHovered: boolean;
+    isInputHovered?: boolean;
 }
 
 const Task: React.FC<TaskProps> = ({ id, title, date, completed, handleDelete, handleUpdate, handleToggleCompleted, style, isInputHovered }) => {
@@ -43,7 +44,10 @@ const Task: React.FC<TaskProps> = ({ id, title, date, completed, handleDelete, h
                     type="checkbox"
                     checked={completed}
                     onChange={handleToggleCompleted}
-                    className={`appearance-none w-5 h-5 border border-[#a6acba] rounded-sm cursor-pointer transition-colors duration-200 ${completed ? 'bg-[#a6acba] border-[#a6acba]' : ''}`}
+                    className={`appearance-none w-5 h-5 border rounded-sm cursor-pointer transition-all duration-100 ease-in-out ${completed
+                        ? 'bg-[#a6acba] border-[#a6acba]'
+                        : 'border-[#a6acba] hover:border-[#c0c5d1]'
+                        }`}
                 />
                 {completed && (
                     <Check
@@ -65,7 +69,7 @@ const Task: React.FC<TaskProps> = ({ id, title, date, completed, handleDelete, h
                 ) : (
                     <p
                         onClick={() => setEditingTitle(true)}
-                        className={`font-semibold mb-2 truncate hover:underline cursor-text ${completed
+                        className={`font-semibold mb-2 truncate hover:underline cursor-text transition-all duration-150 transition-colors duration-200 ${completed
                             ? 'line-through italic text-[#9ba3af]'
                             : 'text-gray-200'
                             }`}
